@@ -1,0 +1,943 @@
+"<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+  <meta charset=\"UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+  <title>Coverify — AI-Native Verification for Faster Silicon Signoff</title>
+  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />
+  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />
+  <link href=\"https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\" />
+  <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css\" />
+  <style>
+    :root {
+      --primary: #4d7df3;
+      --primary-dark: #2f63e8;
+      --primary-deep: #1e3a8a;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e5e7eb;
+      --bg: #ffffff;
+      --soft: #f8fafc;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+      --shadow-lg: 0 24px 60px rgba(47, 99, 232, 0.18);
+      --radius: 22px;
+      --container: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    h1, h2, h3 { font-family: 'Sora', Inter, sans-serif; }
+
+    .container {
+      width: min(var(--container), calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid rgba(77, 125, 243, 0.18);
+      border-radius: 999px;
+      color: var(--primary-dark);
+      background: rgba(77, 125, 243, 0.06);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      margin: 14px 0 14px;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+    }
+
+    .section-copy {
+      margin: 0;
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    section { padding: 84px 0; }
+
+    /* ---------- Header ---------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+    }
+
+    .nav {
+      height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: 'Sora', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      color: #334155;
+      font-size: 15.5px;
+      font-weight: 500;
+    }
+
+    .nav-links > li { list-style: none; position: relative; }
+    .nav-links a { transition: color .2s ease; }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* Dropdown */
+    .has-dropdown > a::after {
+      content: \"\f107\";
+      font-family: \"Font Awesome 6 Free\";
+      font-weight: 900;
+      margin-left: 6px;
+      font-size: 11px;
+      opacity: .7;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, 6px);
+      min-width: 220px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      padding: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s ease, transform .2s ease, visibility .2s;
+      pointer-events: none;
+    }
+
+    .dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14.5px;
+      color: #334155;
+    }
+    .dropdown a:hover { background: rgba(77,125,243,0.08); color: var(--primary-dark); }
+    .dropdown a i { color: var(--primary); width: 16px; }
+
+    .has-dropdown:hover .dropdown,
+    .has-dropdown:focus-within .dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 15px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color .2s ease;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 12px 28px rgba(77, 125, 243, 0.32);
+    }
+    .btn-primary:hover { box-shadow: 0 16px 36px rgba(77, 125, 243, 0.42); }
+
+    .btn-secondary {
+      background: white;
+      border-color: var(--line);
+      color: var(--text);
+    }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 72px 0 48px; position: relative; overflow: hidden; }
+
+    .hero::before {
+      content: \"\";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(900px 500px at 85% 40%, rgba(77, 125, 243, 0.10), transparent 60%),
+        radial-gradient(600px 400px at 10% 0%, rgba(77, 125, 243, 0.06), transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 40px;
+      align-items: center;
+      min-height: 560px;
+    }
+
+    .hero h1 {
+      margin: 20px 0 22px;
+      font-size: clamp(44px, 6.2vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+    }
+    .hero h1 span { color: var(--primary); display: inline-block; }
+
+    .hero p.lead {
+      margin: 0;
+      font-size: clamp(17px, 1.6vw, 20px);
+      color: var(--muted);
+      max-width: 620px;
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+
+    .hero-stats {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 20px;
+      max-width: 560px;
+    }
+    .hero-stats .stat { border-left: 2px solid rgba(77,125,243,.25); padding: 4px 0 4px 14px; }
+    .hero-stats .stat b { display: block; font-family: 'Sora', sans-serif; font-size: 24px; color: var(--text); letter-spacing: -0.02em; }
+    .hero-stats .stat span { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+    .hero-visual {
+      position: relative;
+      min-height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-visual img {
+      width: 108%;
+      max-width: 720px;
+      filter: drop-shadow(0 28px 60px rgba(77, 125, 243, 0.22));
+      animation: floaty 7s ease-in-out infinite;
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    /* ---------- Trustbar ---------- */
+    .trustbar { padding: 18px 0 8px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fcfdff; }
+    .trust-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .trust-label { color: var(--muted); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+    .trust-logos { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; color: #94a3b8; font-family: 'Sora', sans-serif; font-weight: 800; letter-spacing: .05em; font-size: 18px; }
+    .trust-logos span { opacity: .75; transition: opacity .2s; }
+    .trust-logos span:hover { opacity: 1; color: var(--primary); }
+
+    /* ---------- Cards ---------- */
+    .cards-4 {
+      margin-top: 36px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+
+    /* ---------- Product Suite (interactive hover) ---------- */
+    .product-card {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 300px;
+      isolation: isolate;
+      cursor: pointer;
+    }
+    .product-card h3 { margin: 4px 0 6px; font-size: 20px; letter-spacing: -0.01em; }
+    .product-card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    .product-card .visual {
+      position: relative;
+      height: 92px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #eaf1ff, #f6faff);
+      overflow: hidden;
+    }
+
+    /* tiny animated chip inside each card */
+    .mini-chip {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 60px; height: 60px;
+      transform: translate(-50%, -50%);
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e6efff, #cddcff);
+      border: 1.5px solid rgba(77,125,243,.35);
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,.6);
+    }
+    .mini-chip::after {
+      content: \"\";
+      position: absolute;
+      inset: 18px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      transition: transform .5s cubic-bezier(.2,.9,.2,1);
+    }
+    .product-card:hover .mini-chip::after { transform: rotate(45deg) scale(.9); }
+
+    /* moving pulse lines around mini-chip */
+    .pulse-line {
+      position: absolute;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: .0;
+      transition: opacity .3s;
+    }
+    .pulse-line.h { height: 2px; width: 60%; left: -20%; }
+    .pulse-line.v { width: 2px; height: 60%; top: -20%; }
+    .pl-1 { top: 22%; }
+    .pl-2 { bottom: 22%; }
+    .pl-3 { left: 22%; background: linear-gradient(180deg, transparent, var(--primary), transparent); }
+    .pl-4 { right: 22%; background: linear-gradient(180deg, transparent, var(--primary), transparent); }
+
+    .product-card:hover .pulse-line { opacity: .9; }
+    .product-card:hover .pl-1 { animation: slideR 1.4s linear infinite; }
+    .product-card:hover .pl-2 { animation: slideL 1.4s linear infinite; }
+    .product-card:hover .pl-3 { animation: slideD 1.4s linear infinite; }
+    .product-card:hover .pl-4 { animation: slideU 1.4s linear infinite; }
+
+    @keyframes slideR { 0%{transform:translateX(0)} 100%{transform:translateX(160%)} }
+    @keyframes slideL { 0%{transform:translateX(160%)} 100%{transform:translateX(0)} }
+    @keyframes slideD { 0%{transform:translateY(0)} 100%{transform:translateY(160%)} }
+    @keyframes slideU { 0%{transform:translateY(160%)} 100%{transform:translateY(0)} }
+
+    /* floating dots decoration */
+    .dot {
+      position: absolute;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(77,125,243,.5);
+      transition: transform .6s ease, opacity .3s;
+    }
+    .dot.d1 { top: 16%; left: 12%; }
+    .dot.d2 { top: 72%; left: 18%; background: rgba(77,125,243,.25); }
+    .dot.d3 { top: 24%; right: 10%; background: rgba(77,125,243,.35); }
+    .dot.d4 { bottom: 14%; right: 20%; }
+    .product-card:hover .d1 { transform: translate(6px,-4px); }
+    .product-card:hover .d2 { transform: translate(-4px,6px); }
+    .product-card:hover .d3 { transform: translate(8px,4px); }
+    .product-card:hover .d4 { transform: translate(-6px,-6px); }
+
+    .product-card .index {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: .12em;
+    }
+
+    .product-card .learn {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary-dark);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: .01em;
+    }
+    .product-card .learn i { transition: transform .3s ease; }
+    .product-card:hover .learn i { transform: translateX(8px); }
+    .product-card:hover .learn i { animation: arrowNudge 1s ease-in-out infinite; }
+
+    @keyframes arrowNudge {
+      0%,100% { transform: translateX(6px); }
+      50% { transform: translateX(12px); }
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(77,125,243,.45);
+      box-shadow: var(--shadow-lg);
+    }
+    .product-card::before {
+      content: \"\";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px 200px at var(--mx,50%) 0%, rgba(77,125,243,.08), transparent 60%);
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: -1;
+    }
+    .product-card:hover::before { opacity: 1; }
+
+    /* ---------- Value (What We Do) grid ---------- */
+    .feature-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card { position: relative; overflow: hidden; }
+    .feature-card .icon-box {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(77,125,243,.12), rgba(77,125,243,.04));
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--primary-dark); font-weight: 800; font-family: 'Sora', sans-serif;
+      margin-bottom: 14px;
+    }
+    .feature-card h3 { margin: 0 0 8px; font-size: 20px; }
+    .feature-card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    .cta-strip { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 14px; }
+
+    /* ---------- Company / Founders ---------- */
+    .founders-grid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .founder-card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .founder-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .founder-avatar {
+      width: 84px; height: 84px; border-radius: 22px;
+      background: linear-gradient(135deg, #dbe7ff, #b9ceff);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--primary-deep); font-family: 'Sora', sans-serif; font-weight: 800; font-size: 28px;
+      margin-bottom: 14px; letter-spacing: -.02em;
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,.7);
+    }
+    .founder-card h3 { margin: 0 0 4px; font-size: 20px; letter-spacing: -0.01em; }
+    .founder-role { color: var(--primary-dark); font-weight: 600; font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; }
+    .founder-card p { margin: 14px 0 16px; color: var(--muted); font-size: 14.5px; }
+    .founder-socials a { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); margin-right: 6px; transition: .2s; }
+    .founder-socials a:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+
+    .company-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: end; }
+
+    /* ---------- Quotes ---------- */
+    .quote-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .quote-card { min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; }
+    .quote-mark { font-size: 56px; line-height: 1; color: rgba(77, 125, 243, 0.24); font-weight: 900; font-family: 'Sora', sans-serif; }
+    .quote-card p { margin: 0; color: #334155; font-size: 16.5px; }
+    .quote-meta { margin-top: 18px; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+    /* ---------- Knowledge ---------- */
+    .resources-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+    }
+    .article-list, .cert-list { display: grid; gap: 16px; margin-top: 18px; }
+    .article-card, .cert-card {
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      transition: .3s;
+    }
+    .article-card:hover, .cert-card:hover { border-color: var(--primary); transform: translateX(4px); }
+    .article-card h3, .cert-card h3 { margin: 0 0 8px; font-size: 17px; }
+    .article-card p, .cert-card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+      padding: 52px 0 32px;
+      background: #fafbff;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .footer-brand .brand { font-size: 28px; }
+    .footer-brand p { margin: 14px 0 18px; max-width: 320px; }
+    .footer h4 { font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text); margin: 0 0 14px; letter-spacing: .02em; }
+    .footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .footer ul a { transition: color .2s; }
+    .footer ul a:hover { color: var(--primary); }
+
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 24px; flex-wrap: wrap; gap: 16px;
+    }
+
+    .socials { display: flex; gap: 10px; }
+    .socials a {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--line); color: var(--muted);
+      background: #fff; transition: .25s ease;
+    }
+    .socials a:hover { color: #fff; background: var(--primary); border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(77,125,243,.3); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .hero-grid, .cards-4, .two-col, .quote-grid, .feature-grid, .resources-grid, .founders-grid, .company-intro, .footer-top {
+        grid-template-columns: 1fr;
+      }
+      .cards-4 { grid-template-columns: repeat(2, 1fr); }
+      .founders-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .hero-visual { min-height: 400px; }
+      .hero-visual img { width: 80%; }
+    }
+    @media (max-width: 720px) {
+      section { padding: 60px 0; }
+      .nav { height: auto; padding: 18px 0; flex-wrap: wrap; }
+      .nav-links { width: 100%; overflow-x: auto; gap: 20px; padding-bottom: 4px; font-size: 14px; }
+      .cards-4, .founders-grid, .footer-top { grid-template-columns: 1fr; }
+      .hero-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .hero-stats .stat b { font-size: 18px; }
+      .hero h1 { font-size: 40px; }
+      .dropdown { position: static; transform: none; opacity: 1; visibility: visible; pointer-events: auto; box-shadow: none; border: none; padding: 8px 0 0 14px; min-width: 0; }
+      .has-dropdown > a::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class=\"site-header\">
+    <div class=\"container nav\">
+      <a href=\"#\" class=\"brand\" aria-label=\"Coverify home\">COVERIFY</a>
+
+      <ul class=\"nav-links\" aria-label=\"Primary navigation\">
+        <li><a href=\"#products\">Products</a></li>
+        <li><a href=\"#services\">Services</a></li>
+        <li><a href=\"#technology\">Technology</a></li>
+        <li class=\"has-dropdown\">
+          <a href=\"#knowledge\" aria-haspopup=\"true\">Knowledge Centre</a>
+          <div class=\"dropdown\" role=\"menu\">
+            <a href=\"#knowledge\"><i class=\"fa-regular fa-newspaper\"></i> Blogs</a>
+            <a href=\"#knowledge\"><i class=\"fa-regular fa-file-lines\"></i> Articles</a>
+            <a href=\"#knowledge\"><i class=\"fa-solid fa-diagram-project\"></i> Case Studies</a>
+            <a href=\"#knowledge\"><i class=\"fa-solid fa-chalkboard-user\"></i> Workshops</a>
+          </div>
+        </li>
+        <li><a href=\"#company\">Company</a></li>
+      </ul>
+
+      <div class=\"nav-actions\">
+        <a class=\"btn btn-primary\" href=\"#contact\">Talk to an Expert</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class=\"hero\">
+      <div class=\"container hero-grid\">
+        <div>
+          <div class=\"eyebrow\"><i class=\"fa-solid fa-microchip\"></i> Semiconductor Verification Acceleration</div>
+          <h1>
+            AI‑Native <span>Verification</span><br />
+            for Faster Silicon Signoff
+          </h1>
+          <p class=\"lead\">
+            Coverify empowers design and verification teams to ship silicon with confidence — through intelligent
+            automation, scalable testbench IP, and execution‑first engineering partnerships that compress closure timelines.
+          </p>
+
+          <div class=\"hero-actions\">
+            <a class=\"btn btn-primary\" href=\"#contact\">Book a Demo <i class=\"fa-solid fa-arrow-right\"></i></a>
+            <a class=\"btn btn-secondary\" href=\"#products\">Explore Products</a>
+          </div>
+
+          <div class=\"hero-stats\" aria-label=\"Impact metrics\">
+            <div class=\"stat\"><b>40%</b><span>Faster closure</span></div>
+            <div class=\"stat\"><b>3×</b><span>Testbench reuse</span></div>
+            <div class=\"stat\"><b>24/7</b><span>Global delivery</span></div>
+          </div>
+        </div>
+
+        <div class=\"hero-visual\" aria-hidden=\"true\">
+          <img src=\"https://customer-assets.emergentagent.com/job_acfa9488-22f1-4021-8d6f-2d686b6aedc2/artifacts/fw06ooaz_ChatGPT%20Image%20Apr%2021%2C%202026%20at%2004_01_02%20PM.png\" alt=\"Coverify chip illustration\" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust bar -->
+    <div class=\"trustbar\">
+      <div class=\"container trust-inner\">
+        <span class=\"trust-label\">Trusted by silicon teams building next‑gen</span>
+        <div class=\"trust-logos\">
+          <span>SoC</span><span>RISC‑V</span><span>AI ACCEL</span><span>AUTOMOTIVE</span><span>5G</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Suite (interactive) -->
+    <section id=\"products\">
+      <div class=\"container\">
+        <div class=\"eyebrow\">Product Suite</div>
+        <h2 class=\"section-title\">Verification solutions aligned to your silicon roadmap</h2>
+        <p class=\"section-copy\">
+          Hover each card to explore. Built around practical execution, faster ramp‑up, and measurable verification outcomes across complex SoC programs.
+        </p>
+
+        <div class=\"cards-4\">
+          <article class=\"card product-card\" data-testid=\"product-card-1\">
+            <div class=\"visual\" aria-hidden=\"true\">
+              <span class=\"dot d1\"></span><span class=\"dot d2\"></span><span class=\"dot d3\"></span><span class=\"dot d4\"></span>
+              <span class=\"pulse-line h pl-1\"></span>
+              <span class=\"pulse-line h pl-2\"></span>
+              <span class=\"pulse-line v pl-3\"></span>
+              <span class=\"pulse-line v pl-4\"></span>
+              <span class=\"mini-chip\"></span>
+            </div>
+            <div class=\"index\">01 · TESTBENCHES</div>
+            <h3>High‑Performance Testbenches</h3>
+            <p>Scalable, reusable environments designed for coverage efficiency, maintainability, and rapid deployment.</p>
+            <a href=\"#\" class=\"learn\">Learn more <i class=\"fa-solid fa-arrow-right\"></i></a>
+          </article>
+
+          <article class=\"card product-card\" data-testid=\"product-card-2\">
+            <div class=\"visual\" aria-hidden=\"true\">
+              <span class=\"dot d1\"></span><span class=\"dot d2\"></span><span class=\"dot d3\"></span><span class=\"dot d4\"></span>
+              <span class=\"pulse-line h pl-1\"></span>
+              <span class=\"pulse-line h pl-2\"></span>
+              <span class=\"pulse-line v pl-3\"></span>
+              <span class=\"pulse-line v pl-4\"></span>
+              <span class=\"mini-chip\"></span>
+            </div>
+            <div class=\"index\">02 · RISC‑V</div>
+            <h3>RISC‑V Verification</h3>
+            <p>Targeted verification for modern RISC‑V cores, IP blocks, subsystems, and architecture validation.</p>
+            <a href=\"#\" class=\"learn\">Learn more <i class=\"fa-solid fa-arrow-right\"></i></a>
+          </article>
+
+          <article class=\"card product-card\" data-testid=\"product-card-3\">
+            <div class=\"visual\" aria-hidden=\"true\">
+              <span class=\"dot d1\"></span><span class=\"dot d2\"></span><span class=\"dot d3\"></span><span class=\"dot d4\"></span>
+              <span class=\"pulse-line h pl-1\"></span>
+              <span class=\"pulse-line h pl-2\"></span>
+              <span class=\"pulse-line v pl-3\"></span>
+              <span class=\"pulse-line v pl-4\"></span>
+              <span class=\"mini-chip\"></span>
+            </div>
+            <div class=\"index\">03 · HW/SW</div>
+            <h3>HW/SW Co‑Verification</h3>
+            <p>Integrated workflows to validate software‑hardware interactions early and reduce late‑stage debug.</p>
+            <a href=\"#\" class=\"learn\">Learn more <i class=\"fa-solid fa-arrow-right\"></i></a>
+          </article>
+
+          <article class=\"card product-card\" data-testid=\"product-card-4\">
+            <div class=\"visual\" aria-hidden=\"true\">
+              <span class=\"dot d1\"></span><span class=\"dot d2\"></span><span class=\"dot d3\"></span><span class=\"dot d4\"></span>
+              <span class=\"pulse-line h pl-1\"></span>
+              <span class=\"pulse-line h pl-2\"></span>
+              <span class=\"pulse-line v pl-3\"></span>
+              <span class=\"pulse-line v pl-4\"></span>
+              <span class=\"mini-chip\"></span>
+            </div>
+            <div class=\"index\">04 · CO‑EMULATION</div>
+            <h3>Co‑Emulation</h3>
+            <p>Acceleration‑ready setups that validate longer scenarios, improve observability, and cut cycles.</p>
+            <a href=\"#\" class=\"learn\">Learn more <i class=\"fa-solid fa-arrow-right\"></i></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value / What We Solve -->
+    <section id=\"technology\">
+      <div class=\"container\">
+        <div class=\"eyebrow\">What We Solve</div>
+        <h2 class=\"section-title\">Practical bottlenecks that delay silicon signoff</h2>
+        <p class=\"section-copy\">
+          Coverify addresses verification pain points that stall closure, dilute engineering bandwidth, and increase silicon risk.
+        </p>
+
+        <div class=\"feature-grid\">
+          <article class=\"card feature-card\">
+            <div class=\"icon-box\"><i class=\"fa-solid fa-gauge-high\"></i></div>
+            <h3>Closure Bottlenecks</h3>
+            <p>Reduce time lost in unstable environments, fragmented planning, and inefficient debug and coverage loops.</p>
+          </article>
+          <article class=\"card feature-card\">
+            <div class=\"icon-box\"><i class=\"fa-solid fa-rocket\"></i></div>
+            <h3>Ramp‑Up Challenges</h3>
+            <p>Reusable assets and structured verification systems that lower ramp‑up time on new programs.</p>
+          </article>
+          <article class=\"card feature-card\">
+            <div class=\"icon-box\"><i class=\"fa-solid fa-layer-group\"></i></div>
+            <h3>Scale Constraints</h3>
+            <p>Enable lean organizations to do more with the same teams through workflow simplification and automation.</p>
+          </article>
+        </div>
+
+        <div class=\"cta-strip\">
+          <a class=\"btn btn-primary\" href=\"#contact\">Book a Demo</a>
+          <a class=\"btn btn-secondary\" href=\"#contact\">Talk to an Expert</a>
+          <a class=\"btn btn-secondary\" href=\"#contact\">Request Evaluation</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CXO Quotes -->
+    <section>
+      <div class=\"container\">
+        <div class=\"eyebrow\">Industry Voices</div>
+        <h2 class=\"section-title\">What leaders value in high‑performance verification teams</h2>
+        <div class=\"quote-grid\">
+          <article class=\"card quote-card\">
+            <div>
+              <div class=\"quote-mark\">“</div>
+              <p>Teams win when verification becomes an accelerator to product confidence, not a late‑stage bottleneck.</p>
+            </div>
+            <div class=\"quote-meta\">CXO · Silicon Design</div>
+          </article>
+          <article class=\"card quote-card\">
+            <div>
+              <div class=\"quote-mark\">“</div>
+              <p>Predictable closure comes from reusable systems, strong methodology, and engineering judgment at the right points.</p>
+            </div>
+            <div class=\"quote-meta\">VP Engineering</div>
+          </article>
+          <article class=\"card quote-card\">
+            <div>
+              <div class=\"quote-mark\">“</div>
+              <p>Verification maturity directly shapes time‑to‑market, silicon quality, and customer trust.</p>
+            </div>
+            <div class=\"quote-meta\">Head of Verification</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Company / Founders -->
+    <section id=\"company\">
+      <div class=\"container\">
+        <div class=\"company-intro\">
+          <div>
+            <div class=\"eyebrow\">Company</div>
+            <h2 class=\"section-title\">Built by practitioners who understand closure pressure</h2>
+          </div>
+          <p class=\"section-copy\" style=\"justify-self:end;\">
+            Coverify is shaped by deep semiconductor verification experience — engineering depth combined with a sharp focus on speed, clarity, and execution quality.
+          </p>
+        </div>
+
+        <div class=\"founders-grid\">
+          <article class=\"founder-card\" data-testid=\"founder-card-1\">
+            <div class=\"founder-avatar\">RA</div>
+            <h3>Ravi A.</h3>
+            <div class=\"founder-role\">Founder & CEO</div>
+            <p>Two decades across SoC verification for AI, networking, and automotive silicon. Passionate about execution‑first engineering.</p>
+            <div class=\"founder-socials\">
+              <a href=\"#\" aria-label=\"LinkedIn\"><i class=\"fa-brands fa-linkedin-in\"></i></a>
+              <a href=\"#\" aria-label=\"X\"><i class=\"fa-brands fa-x-twitter\"></i></a>
+              <a href=\"mailto:#\" aria-label=\"Email\"><i class=\"fa-regular fa-envelope\"></i></a>
+            </div>
+          </article>
+
+          <article class=\"founder-card\" data-testid=\"founder-card-2\">
+            <div class=\"founder-avatar\">SK</div>
+            <h3>Sneha K.</h3>
+            <div class=\"founder-role\">Co‑Founder & CTO</div>
+            <p>Architect of reusable testbench IP and RISC‑V verification methodologies. Focused on scaling verification quality predictably.</p>
+            <div class=\"founder-socials\">
+              <a href=\"#\" aria-label=\"LinkedIn\"><i class=\"fa-brands fa-linkedin-in\"></i></a>
+              <a href=\"#\" aria-label=\"X\"><i class=\"fa-brands fa-x-twitter\"></i></a>
+              <a href=\"mailto:#\" aria-label=\"Email\"><i class=\"fa-regular fa-envelope\"></i></a>
+            </div>
+          </article>
+
+          <article class=\"founder-card\" data-testid=\"founder-card-3\">
+            <div class=\"founder-avatar\">VM</div>
+            <h3>Vikram M.</h3>
+            <div class=\"founder-role\">Co‑Founder & VP Delivery</div>
+            <p>Drives global delivery, customer success, and workshop programs. Experienced in running lean, high‑impact verification squads.</p>
+            <div class=\"founder-socials\">
+              <a href=\"#\" aria-label=\"LinkedIn\"><i class=\"fa-brands fa-linkedin-in\"></i></a>
+              <a href=\"#\" aria-label=\"X\"><i class=\"fa-brands fa-x-twitter\"></i></a>
+              <a href=\"mailto:#\" aria-label=\"Email\"><i class=\"fa-regular fa-envelope\"></i></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Knowledge Centre -->
+    <section id=\"knowledge\">
+      <div class=\"container\">
+        <div class=\"eyebrow\">Knowledge Centre</div>
+        <h2 class=\"section-title\">Insights, methodology, and capability building</h2>
+        <div class=\"resources-grid\">
+          <article class=\"card\">
+            <h3 style=\"margin:0 0 10px; font-size:22px;\">Latest Blogs & Articles</h3>
+            <p style=\"color:var(--muted); margin:0;\">Thought leadership and applied engineering perspectives for modern verification teams.</p>
+            <div class=\"article-list\">
+              <article class=\"article-card\">
+                <h3>How reusable verification systems improve closure confidence</h3>
+                <p>A sample blog slot for thought leadership, customer education, or methodology deep‑dives.</p>
+              </article>
+              <article class=\"article-card\">
+                <h3>RISC‑V verification priorities for next‑generation silicon teams</h3>
+                <p>Applied engineering perspectives and case‑study style breakdowns.</p>
+              </article>
+              <article class=\"article-card\">
+                <h3>Coverage‑driven debug: reducing time spent in unstable loops</h3>
+                <p>Techniques for sharper triage, observability, and regression hygiene.</p>
+              </article>
+            </div>
+          </article>
+
+          <article class=\"card\">
+            <h3 style=\"margin:0 0 10px; font-size:22px;\">Workshops & Certifications</h3>
+            <p style=\"color:var(--muted); margin:0;\">Capability building tailored to team maturity and roadmap needs.</p>
+            <div class=\"cert-list\">
+              <article class=\"cert-card\">
+                <h3>Verification Bootcamps</h3>
+                <p>Foundational and advanced workshops built around real program needs.</p>
+              </article>
+              <article class=\"cert-card\">
+                <h3>Tooling & Methodology Sessions</h3>
+                <p>Focused sessions on workflows, acceleration, and reusable best practices.</p>
+              </article>
+              <article class=\"cert-card\">
+                <h3>Case Studies</h3>
+                <p>Real silicon stories — closure wins, scaling lessons, methodology adoption.</p>
+              </article>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class=\"footer\" id=\"contact\">
+    <div class=\"container\">
+      <div class=\"footer-top\">
+        <div class=\"footer-brand\">
+          <a href=\"#\" class=\"brand\">COVERIFY</a>
+          <p>AI‑native verification acceleration for modern silicon teams. From testbench IP to closure partnership.</p>
+          <div class=\"socials\" aria-label=\"Social media\">
+            <a href=\"#\" aria-label=\"LinkedIn\" data-testid=\"social-linkedin\"><i class=\"fa-brands fa-linkedin-in\"></i></a>
+            <a href=\"#\" aria-label=\"X\" data-testid=\"social-x\"><i class=\"fa-brands fa-x-twitter\"></i></a>
+            <a href=\"#\" aria-label=\"YouTube\" data-testid=\"social-youtube\"><i class=\"fa-brands fa-youtube\"></i></a>
+            <a href=\"#\" aria-label=\"Instagram\" data-testid=\"social-instagram\"><i class=\"fa-brands fa-instagram\"></i></a>
+            <a href=\"#\" aria-label=\"GitHub\" data-testid=\"social-github\"><i class=\"fa-brands fa-github\"></i></a>
+          </div>
+        </div>
+
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href=\"#products\">Testbenches</a></li>
+            <li><a href=\"#products\">RISC‑V Verification</a></li>
+            <li><a href=\"#products\">HW/SW Co‑Verification</a></li>
+            <li><a href=\"#products\">Co‑Emulation</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4>Knowledge</h4>
+          <ul>
+            <li><a href=\"#knowledge\">Blogs</a></li>
+            <li><a href=\"#knowledge\">Articles</a></li>
+            <li><a href=\"#knowledge\">Case Studies</a></li>
+            <li><a href=\"#knowledge\">Workshops</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href=\"#company\">About</a></li>
+            <li><a href=\"#company\">Founders</a></li>
+            <li><a href=\"#contact\">Contact</a></li>
+            <li><a href=\"#contact\">Careers</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class=\"footer-bottom\">
+        <div>© 2026 Coverify. All rights reserved.</div>
+        <div>Privacy · Terms · Cookie Preferences</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // subtle cursor-tracked glow for product cards
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        card.style.setProperty('--mx', x + '%');
+      });
+    });
+  </script>
+</body>
+</html>
+"
