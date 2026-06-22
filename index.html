@@ -582,22 +582,22 @@
       section { padding: 58px 0; }
       .site-header { position: sticky; }
       .nav {
-        flex-wrap: wrap;
-        gap: 12px;
+        flex-wrap: nowrap;
+        gap: 10px;
         min-height: 64px;
       }
       .brand-logo { height: 34px; }
       .nav-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
       }
       .nav-actions .btn {
-        width: 100%;
-        min-height: 40px;
+        min-height: 38px;
         padding: 0 12px;
         font-size: 13px;
+        white-space: nowrap;
       }
       .eyebrow {
         font-size: 10.5px;
@@ -667,7 +667,8 @@
 
     @media (max-width: 420px) {
       .container { width: calc(100% - 22px); }
-      .nav-actions { grid-template-columns: 1fr; }
+      .nav-actions { gap: 6px; }
+      .nav-actions .btn { padding: 0 10px; font-size: 12px; min-height: 36px; }
       .hero-grid { padding: 0 11px !important; }
       .section-title { font-size: 30px; }
       .section-copy { font-size: 15px; }
